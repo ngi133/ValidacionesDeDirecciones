@@ -57,10 +57,26 @@ app.post('/direccion-nueva', (req, res) => {
     clientes.push(cliente);
 
     res.status(201).json({
-        message: `El cliente ${cliente.id} se creó con éxito.`,
-        cliente
+        message: `El cliente ${cliente.id} se creó con éxito.`
     });
 });
+
+app.delete('/direcciones/:clienteId', (req, res) => {
+
+      const idCliente = req.params.clienteId;
+      const clienteIdx = clientes.findIndex((c)=>c.id == idCliente);
+    if(clienteIdx >= 0){
+        clientes.splice(clienteIdx, 1);
+        res.status(200).json({
+            message:`El curso ${idCliente} se borro correctamente.`,
+        });
+    } else
+    res.status(404).json({
+        message:`El curso ${idCliente} no se encuentra.`,
+    });
+});
+
+
 
     
 
