@@ -3,7 +3,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 const clientes = require('./data/clientes.json');
-const { validarDireccion } = require('./reglas/reglas-direcciones');
+const validarDireccion  = require('./reglas/reglas-direcciones');
 
 // Clientes válidos
 app.get('/direcciones-validas', (req, res) => {

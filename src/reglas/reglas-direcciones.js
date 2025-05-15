@@ -1,74 +1,85 @@
-function validarDireccion(direccion) {
-  const errores = [];
 
-  const palabrasRequeridas = ['Calle', 'Avenida', 'Bulevar', 'Pasaje'];
-  const simbolosProhibidos = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+'];
-  const sinAbreviaturas = ['Av.'];
-  const sinEspacios = direccion.trim();
+  const reglasDirecciones = [
+    // Validación de longitud
+   {
+      regla: "Longitud entre 20 y 60 caracteres",
+      fn: (direccion) => direccion.length >= 20 && direccion.length <= 60,
+    },
 
-  // Validación de longitud
-  if (sinEspacios.length < 20 || sinEspacios.length > 60) {
-    errores.push("Longitud inválida.");
-  }
+    // Verifica si contiene al menos un número
+    {
+       regla: "Debe contener al menos un dígito numérico",
+       fn: (direccion) => {
+          const numeros = ["0","1","2", "3", "4","5", "6", "7", "8", "9" ];
+          return numeros.some((caracter) => direccion.includes(caracter));
+    },
 
-  // Verifica si contiene al menos un número
-  function contieneNumero(texto) {
-    for (let i = 0; i < texto.length; i++) {
-      const char = texto[i];
-      if (char >= '0' && char <= '9') {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  if (!contieneNumero(sinEspacios)) {
-    errores.push("Falta número de puerta o apartamento.");
-  }
-
+  },
+  {
   // Verifica si contiene caracteres prohibidos
-  for (let i = 0; i < simbolosProhibidos.length; i++) {
-    if (sinEspacios.includes(simbolosProhibidos[i])) {
-      errores.push("Contiene caracteres prohibidos.");
-      break;
+  regla: "No debe contener caracteres prohibidos",
+     fn: (direccion) => {
+      const simbolosProhibidos = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+'];
+      return (!simbolosProhibidos.some((caracter) => direccion.includes(caracter)));
+
     }
+  },
+  {
+      // Verifica si contiene alguna palabra requerida
+      regla:"No contiene palabras requeridas.",
+        
+         fn: (direccion) => {
+          const palabrasRequeridas = ['Calle', 'Avenida', 'Bulevar', 'Pasaje'];
+        return (palabrasRequeridas.some(palabra => direccion.includes(palabra)));
   }
+  },
 
-  // Verifica si contiene alguna palabra requerida
-  if (!palabrasRequeridas.some(palabra => sinEspacios.includes(palabra))) {
-    errores.push("No contiene palabras requeridas.");
+  {
+  // Verifica si hay abreviaturas prohibidas
+  regla:"Contiene abreviaturas no permitidas.",
+     fn: (direccion) => {
+   const sinAbreviaturas = ['Av.'];
+  return (!sinAbreviaturas.some(abreviatura => direccion.includes(abreviatura)));
   }
+},
 
+{
+    // Verifica que cada palabra comience con mayúscula
+  regla:"Cada palabra debe iniciar con mayúscula.",
+  fn: (direccion) => {
+  const palabras = direccion.split(' ');
+  return (!palabras.some(p => p[0] !== p[0]?.toUpperCase()));
+  }
+}, 
+
+  {
   // Verifica si el código postal está al final y es válido
-  function codigoPostalAlFinal(texto) {
-    const partes = texto.trim().split(' ');
+  regla:"Código postal no al final.",
+    fn: (direccion) => {
+    const partes = direccion.trim().split(' ');
     const ultima = partes[partes.length - 1];
-
     const esNumero = !isNaN(ultima) && Number.isInteger(Number(ultima));
     const largoValido = ultima.length >= 4 && ultima.length <= 6;
 
     return esNumero && largoValido;
-  }
+    }
 
-  if (!codigoPostalAlFinal(sinEspacios)) {
-    errores.push("Código postal no al final.");
-  }
-
-  // Verifica si hay abreviaturas prohibidas
-  if (sinAbreviaturas.some(abreviatura => sinEspacios.includes(abreviatura))) {
-    errores.push("Contiene abreviaturas no permitidas.");
-  }
-
-  // Verifica que cada palabra comience con mayúscula
-  const palabras = sinEspacios.split(' ');
-  if (palabras.some(p => p[0] !== p[0]?.toUpperCase())) {
-    errores.push("Cada palabra debe iniciar con mayúscula.");
-  }
-
-  return errores;
 }
 
-module.exports = { validarDireccion };
+  
+
+ 
+  ]
+
+
+  // Función principal de validación
+function validarDireccion(direccion) {
+  return reglasDirecciones
+    .filter(regla => !regla.fn(direccion))
+    .map(regla => regla.regla);
+}
+
+module.exports = validarDireccion;
 
 
 
