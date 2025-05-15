@@ -1,9 +1,20 @@
 const express = require('express');
+const _ = require('lodash');
+const clientes = require('./data/clientes.json');
+const validarDireccion  = require('./reglas/reglas-direcciones');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-const clientes = require('./data/clientes.json');
-const validarDireccion  = require('./reglas/reglas-direcciones');
+
+
+app.use(express.json());
+
+
+app.get('/direcciones', (req, res) => {
+  const resultado = clientes
+  res.status(200).json(resultado);
+});
+
 
 // Clientes válidos
 app.get('/direcciones-validas', (req, res) => {
@@ -31,6 +42,27 @@ app.get('/direcciones-invalidas', (req, res) => {
 
   res.status(200).json(resultado);
 });
+
+
+app.post('/direccion-nueva', (req, res) => {
+    const datosDireccion = req.body;
+    
+
+    const ids = clientes.map((c) => c.id);
+    const idMax = _.max(ids) + 1;
+
+    // Combina id con los campos recibidos, sin anidar
+    const cliente = { id:idMax, ...datosDireccion };
+
+    clientes.push(cliente);
+
+    res.status(201).json({
+        message: `El cliente ${cliente.id} se creó con éxito.`,
+        cliente
+    });
+});
+
+    
 
 // Inicio del servidor
 app.listen(PORT, () => {
